@@ -1,0 +1,28 @@
+{
+    "name": "bot-asambleas-la-onda",
+    "version": "0.0.1",
+    "description": "Bot para organizar las asambleas de la onda",
+    "keywords": [
+        "laonda",
+        "bot"
+    ],
+    "repository": "https://github.com/paularmstrong/node-templates.git",
+    "homepage": "",
+    "author": "Jorge Calatayud Maeso <jorge.cmaeso@alumnos.upm.es>",
+    "dependencies": {
+        "dotenv": "^6.0.0",
+        "eslint": "^4.19.1",
+        "jshint": "^2.9.5",
+        "sequelize": "^4.37.10",
+        "sequelize-cli": "^4.0.0",
+        "telegraf": "^3.21.2"
+    },
+    "engines": {
+        "node": ">= 0.4.1"
+    },
+    "scripts": {
+        "start": "node main.js",
+        "prepublish": "npm prune",
+        "test": "make lint && make test"
+    }
+}
