@@ -44,11 +44,49 @@ exports.test = (ctx) =>{
         keyboard.inlineMessageRatingKeyboard);
 };
 
-
-
 exports.changeMonth = (ctx,month,year) => {
     ctx.editMessageText(
         'Elija la fecha del calendario que desea',
         keyboard.getCalendar(month,year));
 };
 
+exports.pickDate = (ctx,day,month,year) =>{
+    console.log(`La fecha elegida es ${day}/${month}/${year}`);
+    ctx.session.date = new Date(`${year}/${Number(month)+1}/${day}`);
+    console.log("La fecha es: "+ctx.session.date);
+    ctx.reply('Elige hora', keyboard.getHourKeyboard(Number(process.env.MIN_HOUR),Number(process.env.MAX_HOUR)));
+};
+
+exports.pickHour = async (ctx) =>{
+    if(!ctx.session.date){
+        ctx.reply("No ha seleccionado ningun dia");
+        return;
+    }
+    if(ctx.message.text === process.env.END_HOUR_MESSAGE){
+        delete ctx.session.date;
+        return;
+    }
+    const hour = Number(ctx.message.text.split(":")[1]);
+    console.log("En recepcion la fecha es: "+ctx.session.date);
+    const pushDate = new Date(ctx.session.date.getTime());
+    pushDate.setHours(hour);
+    const userId = ctx.update.message.chat.id;
+    console.log("En recepcion2 la fecha es: "+pushDate);
+    const count = await models.vote.count({where: {userid: userId, date: pushDate}});
+    console.log("count "+count);
+    if(count !== 0){
+        console.log("Voto no valido");
+        ctx.reply("Esa hora ya ha sido introducida");
+        return;
+    }
+    const vote = models.vote.build({
+        userid: userId,
+        date: pushDate
+    });
+
+    vote.save({fields: ["userid", "date"]}).then(vote =>{
+        console.log("Voto guardado correctamente");
+    }).catch(Sequelize.ValidationError,error => {
+        console.log(error);
+    }).catch(error => console.log(error));
+};

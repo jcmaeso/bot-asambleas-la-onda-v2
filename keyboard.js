@@ -42,7 +42,7 @@ let get_days = (date) =>{
     let c_date;
     for(let i = 1; i <= get_end_of_month(date.getMonth()+1,date.getFullYear()); i++){
         c_date = new Date(`${date.getFullYear()}/${date.getMonth()+1}/${i}`);
-        week.push(set_btn(i,`CALENDAR ${i} ${date.getMonth()}`));
+        week.push(set_btn(i,`CALENDAR ${i} ${date.getMonth()} ${date.getFullYear()}`));
         if(c_date.getDay() === 0){
             weeks.push(week);
             week = [];
@@ -82,11 +82,11 @@ let get_month_number = mon => {
     return new Date(Date.parse(mon +" 1, 2012")).getMonth()+1;
  }
 
-let get_hour_keyboard = (min,max) => {
+exports.getHourKeyboard = (min,max) => {
     let keyboard = [];
     for(let i = min; i <= max; i++){
         keyboard.push([`HORA: ${i}:00`]);
     }
-    keyboard.push([end_hour_message])
-    return keyboard;
-}
+    keyboard.push([process.env.END_HOUR_MESSAGE]);
+    return Markup.keyboard(keyboard).resize().extra();
+};

@@ -1,10 +1,13 @@
 
 const Telegraf = require('telegraf');
+const session = require('telegraf/session');
 const controller = require('./controller');
 require('dotenv').config();
 console.log(process.env.BOT_TOKEN);
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+
+bot.use(session());
 
 bot.command('/start', controller.start);
 bot.command('/test', controller.test);
@@ -23,7 +26,7 @@ bot.on('callback_query', (ctx) => {
                     controller.changeMonth(ctx,args[1],args[2]);
                     break;
                 default:
-                    console.log("dia");
+                    controller.pickDate(ctx,args[0],args[1],args[2]);
                     break;
             }
             break;
@@ -35,5 +38,7 @@ bot.on('callback_query', (ctx) => {
     }
     console.log(ctx.callbackQuery.data);
 });
+
+bot.hears(new RegExp("HORA: [0-9]+:00"),ctx => controller.pickHour(ctx));
 
 bot.startPolling();
