@@ -57,7 +57,7 @@ exports.pickDate = (ctx,day,month,year) =>{
     ctx.reply('Elige hora', keyboard.getHourKeyboard(Number(process.env.MIN_HOUR),Number(process.env.MAX_HOUR)));
 };
 
-exports.pickHour = async (ctx) =>{
+exports.pickHour = async (ctx) => {
     if(!ctx.session.date){
         ctx.reply("No ha seleccionado ningun dia");
         return;
@@ -69,10 +69,11 @@ exports.pickHour = async (ctx) =>{
     const hour = Number(ctx.message.text.split(":")[1]);
     console.log("En recepcion la fecha es: "+ctx.session.date);
     const pushDate = new Date(ctx.session.date.getTime());
+    console.log("La ")
     pushDate.setHours(hour);
     const userId = ctx.update.message.chat.id;
     console.log("En recepcion2 la fecha es: "+pushDate);
-    const count = await models.vote.count({where: {userid: userId, date: pushDate}});
+    let count = await models.vote.count({where: {userid: userId, date: pushDate}});
     console.log("count "+count);
     if(count !== 0){
         console.log("Voto no valido");
@@ -90,3 +91,41 @@ exports.pickHour = async (ctx) =>{
         console.log(error);
     }).catch(error => console.log(error));
 };
+
+exports.masVotado = async (ctx) =>{
+    let votes = await models.vote.findAll({
+        include: [{model: models.user}]
+    });
+    let masVotado = votes[0];
+    let fechas = [];
+    let msg = "";
+    for(vote in votes){
+        let tmpVotes = [JSON.parse(JSON.stringify(votes[vote]))]
+        for(count in votes){
+            if(JSON.stringify(votes[vote].date) === JSON.stringify(votes[count].date) && votes[vote].userid !== votes[count].userid){
+                tmpVotes.push(JSON.parse(JSON.stringify(votes[count])))
+                votes.splice(count,1);
+            }
+        
+        }
+        fechas.push(tmpVotes);
+    }
+
+    ctx.reply(generateMasVotadoMessage(fechas));
+}
+
+let generateMasVotadoMessage = fechas =>{
+    msg = ""
+    fechas.sort((a,b) => {return b.length - a.length});
+    for(fecha in fechas){
+        let users = [];
+        for(user in fechas[fecha]){
+            users.push(fechas[fecha][user].user.username);
+        }
+        console.log(`Los usuarios que han votado son ${users.toString()} \n`);
+        console.log(`La fecha ${fechas[fecha][0].date} tiene ${fechas[fecha].length} votos`);
+        msg += `${Number(fecha)+1}->  La fecha ${fechas[fecha][0].date} tiene ${fechas[fecha].length} votos \n`;
+        msg += `Los usuarios que han votado son ${users.toString()} \n`;
+    }
+    return msg;
+}

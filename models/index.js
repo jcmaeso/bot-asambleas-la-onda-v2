@@ -12,6 +12,7 @@ sequelize.import(path.join(__dirname,"vote"));
 const {asamblea,user,vote} = sequelize.models;
 
 //Relacciones base de datos
-
+user.hasMany(vote);
+vote.belongsTo(user, {foreignKey: 'userid'});
 
 module.exports = sequelize;
