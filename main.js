@@ -20,7 +20,7 @@ bot.command('/masvotado',controller.masVotado,controller.generateMasVotadoMessag
 bot.command('/nuevopunto',controller.puntosLoader,controller.anadePunto);
 bot.command('/muestrapuntos',controller.puntosLoader,controller.muestraPuntos);
 bot.command('/borrapuntos',controller.puntosLoader,controller.borraPuntos);
-bot.command('/comenzarpuntos',controller.masVotado,controller.comenzarPuntos);
+bot.command('/comenzarpuntos',controller.isAdmin,controller.masVotado,controller.comenzarPuntos);
 
 bot.on('callback_query', (ctx) => {
     const args = ctx.callbackQuery.data.split(" ");

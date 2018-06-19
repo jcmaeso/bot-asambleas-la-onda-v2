@@ -9,6 +9,11 @@ module.exports = (sequelize, DataType) =>{
         username: {
             type: DataType.STRING,
             validate: {notEmpty: {msg:"name cannot be empty"}}
+        },
+        isAdmin: {
+            type: DataType.BOOLEAN,
+            allowNull: false,
+            defaultValue: 'false'
         }
     });
 };

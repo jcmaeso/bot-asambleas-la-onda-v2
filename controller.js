@@ -204,7 +204,14 @@ exports.comenzarPuntos = (ctx) =>{
     let dir = "./old_puntos"
     let newFile  = `${dir}/${ctx.session.fechas[0][0].date}.json`;
     fs.rename(process.env.PUNTOS_FILE,newFile,err => console.log(err));
+    models.votes.destroy({where: {}});
 }
 
-
-
+exports.isAdmin = async (ctx,next) => {
+    let user = await models.user.findById(ctx.update.message.chat.id);
+    if(!user.isAdmin){
+        ctx.reply("Necesitas ser admin para usar este comando, habla con @datCalata");
+        return;
+    }
+    next();
+}
