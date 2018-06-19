@@ -2,17 +2,23 @@
 const Telegraf = require('telegraf');
 const session = require('telegraf/session');
 const controller = require('./controller');
+const middleware = require('./middleware');
+const commandParts = require('telegraf-command-parts');
 require('dotenv').config();
 console.log(process.env.BOT_TOKEN);
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.use(session());
+//Command args middleware
+bot.use(commandParts());
 
 bot.command('/start', controller.start);
 bot.command('/test', controller.test);
 bot.command('/vote',controller.vote);
 bot.command('/masvotado',controller.masVotado);
+bot.command('/nuevopunto',controller.anadePunto);
+bot.command('/muestrapuntos',controller.muestraPuntos);
 
 bot.on('callback_query', (ctx) => {
     const args = ctx.callbackQuery.data.split(" ");

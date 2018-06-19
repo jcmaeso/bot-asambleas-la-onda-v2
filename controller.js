@@ -1,7 +1,7 @@
 const {models} = require('./models');
 const Sequelize = require("sequelize");
 const keyboard = require('./keyboard');
-
+const fs = require('fs');
 //Creates a new user in db if it doesnt exists
 exports.start = (ctx) =>{
     const userId = ctx.update.message.chat.id;
@@ -67,14 +67,10 @@ exports.pickHour = async (ctx) => {
         return;
     }
     const hour = Number(ctx.message.text.split(":")[1]);
-    console.log("En recepcion la fecha es: "+ctx.session.date);
     const pushDate = new Date(ctx.session.date.getTime());
-    console.log("La ")
     pushDate.setHours(hour);
     const userId = ctx.update.message.chat.id;
-    console.log("En recepcion2 la fecha es: "+pushDate);
     let count = await models.vote.count({where: {userid: userId, date: pushDate}});
-    console.log("count "+count);
     if(count !== 0){
         console.log("Voto no valido");
         ctx.reply("Esa hora ya ha sido introducida");
@@ -129,3 +125,30 @@ let generateMasVotadoMessage = fechas =>{
     }
     return msg;
 }
+
+exports.anadePunto = (ctx) =>{
+    fs.writeFile(process.env.PUNTOS_FILE,ctx.state.command.args,err => {
+        if(err){
+            console.log(err);
+        }
+    })
+}
+
+exports.muestraPuntos = (ctx) => {
+    fs.readFile(process.env.PUNTOS_FILE,(err,data) =>{
+        if(err){
+			//La primera vez no existe el fichero
+			if(err.code === "ENOENT"){
+				save();
+				return;
+			}
+			throw err;
+        }
+        ctx.reply(data);
+    }
+    )
+}
+
+
+
+
