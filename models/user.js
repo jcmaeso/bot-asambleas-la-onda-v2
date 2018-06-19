@@ -1,6 +1,12 @@
 module.exports = (sequelize, DataType) =>{
     return sequelize.define('user',{
-        name: {
+        id: {
+            type: DataType.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            unique: true
+        },
+        username: {
             type: DataType.STRING,
             validate: {notEmpty: {msg:"name cannot be empty"}}
         }

@@ -9,10 +9,9 @@ module.exports = {
               type: Sequelize.INTEGER,
               allowNull: false,
               primaryKey: true,
-              autoIncrement: true,
               unique: true
           },
-          name: {
+          username: {
             type: Sequelize.STRING,
             validate: {notEmpty: {msg:"name cannot be empty"}}
           },
