@@ -1,6 +1,6 @@
 const {models} = require('./models');
 const Sequelize = require("sequelize");
-
+const keyboard = require('./keyboard');
 
 //Creates a new user in db if it doesnt exists
 exports.start = (ctx) =>{
@@ -30,4 +30,25 @@ exports.start = (ctx) =>{
     });
 };
 
+exports.vote = (ctx) =>{
+    ctx.telegram.sendMessage(
+        ctx.from.id,
+        'Elija la fecha del calendario que desea',
+        keyboard.getCalendar());
+}
+
+exports.test = (ctx) =>{
+    ctx.telegram.sendMessage(
+        ctx.from.id,
+        'Like?',
+        keyboard.inlineMessageRatingKeyboard);
+};
+
+
+
+exports.changeMonth = (ctx,month,year) => {
+    ctx.editMessageText(
+        'Elija la fecha del calendario que desea',
+        keyboard.getCalendar(month,year));
+};
 
