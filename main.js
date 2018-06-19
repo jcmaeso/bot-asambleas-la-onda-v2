@@ -17,8 +17,9 @@ bot.command('/start', controller.start);
 bot.command('/test', controller.test);
 bot.command('/vote',controller.vote);
 bot.command('/masvotado',controller.masVotado);
-bot.command('/nuevopunto',controller.anadePunto);
-bot.command('/muestrapuntos',controller.muestraPuntos);
+bot.command('/nuevopunto',controller.puntosLoader,controller.anadePunto);
+bot.command('/muestrapuntos',controller.puntosLoader,controller.muestraPuntos);
+bot.command('/borrapuntos',controller.puntosLoader,controller.borraPuntos);
 
 bot.on('callback_query', (ctx) => {
     const args = ctx.callbackQuery.data.split(" ");

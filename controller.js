@@ -126,27 +126,75 @@ let generateMasVotadoMessage = fechas =>{
     return msg;
 }
 
+exports.puntosLoader = (ctx,next) =>{
+    fs.readFile(process.env.PUNTOS_FILE,(err,data) =>{
+        if(err){
+			//La primera vez no existe el fichero
+			if(err.code === "ENOENT"){
+                ctx.session.puntos = [];
+                ctx.session.puntosId = 0;
+                fs.writeFile(process.env.PUNTOS_FILE,
+                    JSON.stringify({}),
+                    err => {
+                        if(err) throw err;
+            });
+				return next();
+			}
+			throw err;
+        }
+        ctx.session.puntos = JSON.parse(data);
+        if(!ctx.session.puntos){
+            ctx.session.puntosId = 0;
+        }else{
+            ctx.session.puntosId = ctx.session.puntos.length;
+
+        }
+        return next();
+    })
+};
+
 exports.anadePunto = (ctx) =>{
-    fs.writeFile(process.env.PUNTOS_FILE,ctx.state.command.args,err => {
+    let newJson = {
+        puntoId: ctx.session.puntosId,
+        userId: ctx.update.message.chat.id,
+        punto: ctx.state.command.args
+    };
+    console.log(newJson);
+    ctx.session.puntos.push(newJson);
+    fs.writeFile(process.env.PUNTOS_FILE,JSON.stringify(ctx.session.puntos),err => {
         if(err){
             console.log(err);
         }
     })
 }
 
-exports.muestraPuntos = (ctx) => {
-    fs.readFile(process.env.PUNTOS_FILE,(err,data) =>{
-        if(err){
-			//La primera vez no existe el fichero
-			if(err.code === "ENOENT"){
-				save();
-				return;
-			}
-			throw err;
-        }
-        ctx.reply(data);
+exports.muestraPuntos = async (ctx) => {
+    let msg = "Los puntos del momento son \n";
+    const {puntos} = ctx.session;
+    for(punto in puntos){
+        let user = await models.user.findById(puntos[punto].userId)
+        msg += `ID:${puntos[punto].puntoId} ${puntos[punto].punto} por ${user.username} \n`;   
     }
-    )
+    ctx.reply(msg)
+}
+
+exports.borraPuntos = (ctx) =>{
+    const {puntos} = ctx.session;
+    console.log(puntos);
+    const ids = ctx.state.command.args.split(" ").reverse();
+    for(id in ids){
+        console.log(puntos[ids[id]]);
+        console.log(ids[id]);
+        puntos.splice(ids[id],1);
+    }
+    for(punto in puntos){
+        puntos[punto].puntoId = punto;
+    }
+    fs.writeFile(process.env.PUNTOS_FILE,JSON.stringify(puntos),err => {
+        if(err){
+            console.log(err);
+        }
+    })
 }
 
 
