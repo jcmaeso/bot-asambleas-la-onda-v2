@@ -88,7 +88,7 @@ exports.pickHour = async (ctx) => {
     }).catch(error => console.log(error));
 };
 
-exports.masVotado = async (ctx) =>{
+exports.masVotado = async (ctx,next) =>{
     let votes = await models.vote.findAll({
         include: [{model: models.user}]
     });
@@ -106,11 +106,12 @@ exports.masVotado = async (ctx) =>{
         }
         fechas.push(tmpVotes);
     }
-
-    ctx.reply(generateMasVotadoMessage(fechas));
+    ctx.session.fechas = fechas;
+    return next()
 }
 
-let generateMasVotadoMessage = fechas =>{
+exports.generateMasVotadoMessage = (ctx,next) =>{
+    let {fechas} =  ctx.session;
     msg = ""
     fechas.sort((a,b) => {return b.length - a.length});
     for(fecha in fechas){
@@ -123,7 +124,7 @@ let generateMasVotadoMessage = fechas =>{
         msg += `${Number(fecha)+1}->  La fecha ${fechas[fecha][0].date} tiene ${fechas[fecha].length} votos \n`;
         msg += `Los usuarios que han votado son ${users.toString()} \n`;
     }
-    return msg;
+    ctx.reply(msg);
 }
 
 exports.puntosLoader = (ctx,next) =>{
@@ -166,6 +167,7 @@ exports.anadePunto = (ctx) =>{
             console.log(err);
         }
     })
+    ctx.reply(`Punto añadido correctamente`);
 }
 
 exports.muestraPuntos = async (ctx) => {
@@ -194,9 +196,15 @@ exports.borraPuntos = (ctx) =>{
         if(err){
             console.log(err);
         }
-    })
+    });
+    ctx.reply(`Se han borrado correctamente los puntos ${ids}`);
 }
 
+exports.comenzarPuntos = (ctx) =>{
+    let dir = "./old_puntos"
+    let newFile  = `${dir}/${ctx.session.fechas[0][0].date}.json`;
+    fs.rename(process.env.PUNTOS_FILE,newFile,err => console.log(err));
+}
 
 
 
